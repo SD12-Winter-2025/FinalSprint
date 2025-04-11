@@ -14,7 +14,8 @@ public class MembershipService {
     }
 
     public boolean purchaseMembership(int userId, String type, double price) {
-        try { 
+
+        try {
             Membership membership = new Membership();
             membership.setUserId(userId);
             membership.setType(type);
@@ -22,6 +23,7 @@ public class MembershipService {
             membership.setStartDate(LocalDate.now());
             membership.setEndDate(LocalDate.now().plusMonths(1));
             return membershipDAO.create(membership);
+
         } catch (Exception e) {
             System.err.println("Error purchasing membership: " + e.getMessage());
             return false;
@@ -29,11 +31,21 @@ public class MembershipService {
     }
 
     public List<Membership> getUserMemberships(int userId) {
+
         try {
             return membershipDAO.findByUserId(userId);
         } catch (Exception e) {
             System.err.println("Error retrieving memberships for user " + userId + ": " + e.getMessage());
             return List.of();
+        }
+    }
+
+    public double calculateTotalRevenue() {
+        try {
+            return membershipDAO.calculateTotalRevenue();
+        } catch (Exception e) {
+            System.err.println("Error calculating total revenue: " + e.getMessage());
+            return 0.0;
         }
     }
 }
