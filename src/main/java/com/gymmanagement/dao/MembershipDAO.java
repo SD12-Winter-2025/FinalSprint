@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +16,11 @@ public class MembershipDAO {
 
 public boolean create(Membership membership) throws SQLException {
     String sql = "INSERT INTO memberships (user_id, type, description, start_date, end_date, price, payment_status) " + 
-                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
-     
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+    
     try (Connection conn = DatabaseConfig.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-         
+        PreparedStatement stmt = conn.prepareStatement(sql)) {
+        
         stmt.setInt(1, membership.getUserId());
         stmt.setString(2, membership.getType());
         stmt.setString(3, membership.getDescription());
@@ -27,7 +28,7 @@ public boolean create(Membership membership) throws SQLException {
         stmt.setDate(5, Date.valueOf(membership.getEndDate()));
         stmt.setDouble(6, membership.getPrice());
         stmt.setString(7, membership.getPaymentStatus());
-         
+    
         return stmt.executeUpdate() > 0;
     }
 }
@@ -35,13 +36,13 @@ public boolean create(Membership membership) throws SQLException {
 public List<Membership> findByUserId(int userId) throws SQLException {
     String sql = "SELECT * FROM memberships WHERE user_id = ?";
     List<Membership> memberships = new ArrayList<>();
-     
+    
     try (Connection conn = DatabaseConfig.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-         
+        PreparedStatement stmt = conn.prepareStatement(sql)) {
+        
         stmt.setInt(1, userId);
         ResultSet rs = stmt.executeQuery();
-         
+        
         while (rs.next()) {
             Membership membership = new Membership();
             membership.setId(rs.getInt("membership_id"));
@@ -58,5 +59,15 @@ public List<Membership> findByUserId(int userId) throws SQLException {
     }
 }
 
+public double calculateTotalRevenue() throws SQLException {
+    String sql = "SELECT SUM(price) AS total FROM memberships WHERE payment_status = 'PAID'";
+    
+    try (Connection conn = DatabaseConfig.getConnection();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(sql)) {
+        
+        return rs.next() ? rs.getDouble("total") : 0.0; // Return 0.0 if no records are found
+    }
+}
 
 }

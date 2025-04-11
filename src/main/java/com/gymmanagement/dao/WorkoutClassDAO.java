@@ -4,8 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.gymmanagement.config.DatabaseConfig;
 import com.gymmanagement.model.WorkoutClass;
 
@@ -21,25 +24,47 @@ public List<WorkoutClass> findAll() throws SQLException {
         
         while (rs.next()) {
             classes.add(mapResultSetToWorkoutClass(rs));
-        } 
+        }
         return classes;
     }
 }
 
-public List<WorkoutClass> findByTrainerId(int trainerId) throws SQLException {
-    String sql = "SELECT * FROM workout_classes WHERE trainer_id = ?";
-    List<WorkoutClass> classes = new ArrayList<>();
+public boolean create(WorkoutClass workoutClass) throws SQLException {
+    String sql = "INSERT INTO workout_classes (name, description, type, trainer_id, schedule, duration_minutes, max_capacity) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+    
+    try (Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        
+        stmt.setString(1, workoutClass.getName());
+        stmt.setString(2, workoutClass.getDescription());
+        stmt.setString(3, workoutClass.getType());
+        stmt.setInt(4, workoutClass.getTrainerId());
+        stmt.setTimestamp(5, Timestamp.valueOf(workoutClass.getSchedule()));
+        stmt.setInt(6, workoutClass.getDurationMinutes());
+        stmt.setInt(7, workoutClass.getMaxCapacity());
+        
+        int affectedRows = stmt.executeUpdate();
+        if (affectedRows > 0) {
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    workoutClass.setId(rs.getInt(1));
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+}
+
+public boolean delete(int classId) throws SQLException {
+    String sql = "DELETE FROM workout_classes WHERE class_id = ?";
     
     try (Connection conn = DatabaseConfig.getConnection();
         PreparedStatement stmt = conn.prepareStatement(sql)) {
         
-        stmt.setInt(1, trainerId);
-        ResultSet rs = stmt.executeQuery();
-    
-        while (rs.next()) {
-            classes.add(mapResultSetToWorkoutClass(rs));
-        }
-        return classes;
+        stmt.setInt(1, classId);
+        return stmt.executeUpdate() > 0;
     }
 }
 
@@ -55,6 +80,5 @@ private WorkoutClass mapResultSetToWorkoutClass(ResultSet rs) throws SQLExceptio
     workoutClass.setMaxCapacity(rs.getInt("max_capacity"));
     return workoutClass;
 }
-
 
 }

@@ -34,10 +34,10 @@ public User findByUsername(String username) throws SQLException {
     String sql = "SELECT * FROM users WHERE username = ?";
     try (Connection conn = DatabaseConfig.getConnection();
         PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+        
         stmt.setString(1, username);
         ResultSet rs = stmt.executeQuery();
-
+        
         if (rs.next()) {
             return mapResultSetToUser(rs);
         }
@@ -58,6 +58,16 @@ public List<User> findAll() throws SQLException {
         }
     }
     return users;
+}
+
+public boolean delete(int userId) throws SQLException {
+    String sql = "DELETE FROM users WHERE user_id = ?";
+    try (Connection conn = DatabaseConfig.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql)) {
+        
+        stmt.setInt(1, userId);
+        return stmt.executeUpdate() > 0;
+    }
 }
 
 private User mapResultSetToUser(ResultSet rs) throws SQLException {
