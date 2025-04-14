@@ -1,9 +1,10 @@
 package com.gymmanagement.util;
 
+
 import java.util.InputMismatchException;
 import java.util.Scanner;
-public class ConsoleUtils {
 
+public class ConsoleUtils {
     public static int readInt(Scanner scanner, String prompt, int min, int max) {
         while (true) {
             try {
@@ -19,5 +20,18 @@ public class ConsoleUtils {
                 scanner.nextLine(); // Clear invalid input
             }
         }
+    }
+    
+
+    public static String readNonEmptyString(Scanner scanner, String prompt) {
+        String input;
+        do {
+            System.out.print(prompt);
+            input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                System.out.println("This field cannot be empty!");
+            }
+        } while (input.isEmpty());
+        return input;
     }
 }

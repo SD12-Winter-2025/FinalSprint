@@ -1,61 +1,120 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> 
-  <modelVersion>4.0.0</modelVersion> 
-  <groupId>com.gymmanagement</groupId> 
-  <artifactId>gym-management</artifactId> 
-  <version>1.0-SNAPSHOT</version> 
-  <name>gym-management</name> 
-   
-  <properties> 
-    <maven.compiler.release>11</maven.compiler.release> 
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-  </properties> 
- 
-  <dependencies> 
-    <!-- PostgreSQL JDBC Driver --> 
-    <dependency> 
-      <groupId>org.postgresql</groupId> 
-      <artifactId>postgresql</artifactId> 
-      <version>42.3.1</version> 
-    </dependency> 
-     
-    <!-- BCrypt for password hashing --> 
-    <dependency> 
-      <groupId>org.mindrot</groupId> 
-      <artifactId>jbcrypt</artifactId> 
-      <version>0.4</version> 
-    </dependency> 
-     
-    <!-- Logging --> 
-    <dependency> 
-      <groupId>org.slf4j</groupId> 
-      <artifactId>slf4j-api</artifactId> 
-      <version>1.7.36</version> 
-    </dependency> 
-    <dependency> 
-      <groupId>ch.qos.logback</groupId> 
-      <artifactId>logback-classic</artifactId> 
-      <version>1.2.11</version> 
-    </dependency> 
-  </dependencies> 
- 
-  <build> 
-    <resources> 
-      <resource> 
-        <directory>src/main/resources</directory> 
-        <includes> 
-          <include>**/*.sql</include> 
-        </includes> 
-      </resource> 
-    </resources> 
-     
-    <plugins> 
-      <!-- Compiler Plugin --> 
-      <plugin> 
-        <groupId>org.apache.maven.plugins</groupId> 
-        <artifactId>maven-compiler-plugin</artifactId> 
-        <version>3.8.1</version> 
-      </plugin> 
-    </plugins> 
-  </build> 
-</project> 
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.gymmanagement</groupId>
+  <artifactId>gym-management</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>gym-management</name>
+  <url>http://maven.apache.org</url>
+  
+
+  <properties>
+    <maven.compiler.release>11</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <junit.version>5.8.2</junit.version>
+    <surefire.version>2.22.2</surefire.version>
+  </properties>
+
+
+  <dependencies>
+    <!-- PostgreSQL JDBC Driver -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.3.1</version>
+    </dependency>
+    
+
+    <!-- BCrypt for password hashing -->
+    <dependency>
+      <groupId>org.mindrot</groupId>
+      <artifactId>jbcrypt</artifactId>
+      <version>0.4</version>
+    </dependency>
+    
+    <!-- Logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.36</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.2.11</version>
+    </dependency>
+    
+    <!-- Testing -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>4.5.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>**/*.sql</include>
+        </includes>
+      </resource>
+    </resources>
+    
+    <plugins>
+      <!-- Compiler Plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+      </plugin>
+      
+      <!-- Executable JAR -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>com.gymmanagement.App</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+    </plugin>
+      
+      <!-- Javadoc Generation -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.3.2</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>javadoc</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
