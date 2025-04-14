@@ -1,19 +1,28 @@
 package com.gymmanagement.menu;
 
+
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 import com.gymmanagement.model.Membership;
+import com.gymmanagement.model.User;
+import com.gymmanagement.model.WorkoutClass;
 import com.gymmanagement.service.MembershipService;
+import com.gymmanagement.service.WorkoutClassService;
 
 public class MemberMenu {
     private final Scanner scanner;
     private final MembershipService membershipService;
+    private final WorkoutClassService classService;
+    private final User currentUser;
 
-    public MemberMenu(Scanner scanner, MembershipService membershipService) {
+    public MemberMenu(Scanner scanner, MembershipService membershipService,
+                    WorkoutClassService classService, User currentUser) {
         this.scanner = scanner;
         this.membershipService = membershipService;
+        this.classService = classService;
+        this.currentUser = currentUser;
     }
-
 
     public void show() {
         while (true) {
@@ -21,35 +30,50 @@ public class MemberMenu {
             System.out.println("1. Browse Classes");
             System.out.println("2. View My Memberships");
             System.out.println("3. Purchase Membership");
-            System.out.println("4. Logout");
+            System.out.println("4. Enroll in Class");
+            System.out.println("5. Logout");
             System.out.print("Select an option: ");
-
+            
             int choice = scanner.nextInt();
             scanner.nextLine();
-
-
-            switch (choice) {
-                case 1:
-                    System.out.println("Browsing classes (functionality to be implemented).");
-                    break;
-                case 2:
-                    viewMyMemberships();
-                    break;
-                case 3:
-                    purchaseMembership();
-                    break;
-                case 4:
-                    return; // Logout
-                default:
-                    System.out.println("Invalid option!");
+            
+            try {
+                switch (choice) {
+                    case 1:
+                        browseClasses();
+                        break;
+                    case 2:
+                        viewMyMemberships();
+                        break;
+                    case 3:
+                        purchaseMembership();
+                        break;
+                    case 4:
+                        enrollInClass();
+                        break;
+                    case 5:
+                        return;
+                    default:
+                        System.out.println("Invalid option!");
+                }
+            } catch (SQLException e) {
+                System.err.println("Database error: " + e.getMessage());
             }
         }
     }
 
+    private void browseClasses() throws SQLException {
+        List<WorkoutClass> classes = classService.getAllClasses();
+        if (classes.isEmpty()) {
+            System.out.println("No classes available.");
+        } else {
+            System.out.println("\n=== AVAILABLE CLASSES ===");
+            classes.forEach(System.out::println);
+        }
+    }
 
-    private void viewMyMemberships() {
-        
-        List<Membership> memberships = membershipService.getUserMemberships(1); // Replace with dynamic user ID
+    private void viewMyMemberships() throws SQLException {
+        List<Membership> memberships = membershipService.getUserMemberships(currentUser.getId());
         if (memberships.isEmpty()) {
             System.out.println("No active memberships.");
         } else {
@@ -58,17 +82,16 @@ public class MemberMenu {
         }
     }
 
-    private void purchaseMembership() {
-
+    private void purchaseMembership() throws SQLException {
         System.out.println("\n=== MEMBERSHIP TYPES ===");
         System.out.println("1. Basic ($29.99/month)");
         System.out.println("2. Premium ($49.99/month)");
         System.out.println("3. Platinum ($79.99/month)");
         System.out.print("Select type: ");
-
+        
         int choice = scanner.nextInt();
-
         scanner.nextLine();
+        
         String type;
         double price;
         switch (choice) {
@@ -80,7 +103,24 @@ public class MemberMenu {
                 return;
         }
 
-        boolean success = membershipService.purchaseMembership(1, type, "Standard membership", price); // Replace user ID with dynamic ID
+        
+
+        boolean success = membershipService.purchaseMembership(
+            currentUser.getId(),
+            type,
+            "Standard membership", // Added description
+            price
+        );
         System.out.println(success ? "Purchase successful!" : "Purchase failed.");
+    }
+
+    private void enrollInClass() throws SQLException {
+        browseClasses();
+        System.out.print("Enter class ID to enroll: ");
+        int classId = scanner.nextInt();
+        scanner.nextLine();
+        
+        boolean success = classService.enrollMember(currentUser.getId(), classId);
+        System.out.println(success ? "Enrollment successful!" : "Enrollment failed.");
     }
 }
