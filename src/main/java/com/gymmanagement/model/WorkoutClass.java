@@ -3,6 +3,9 @@ package com.gymmanagement.model;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Scheduled gym class with enrollment tracking and capacity management.
+ */
 public class WorkoutClass {
     private int id;
     private String name;
@@ -14,7 +17,6 @@ public class WorkoutClass {
     private int maxCapacity;
     private int currentEnrollment;
 
-    // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     
@@ -34,15 +36,29 @@ public class WorkoutClass {
     public void setSchedule(LocalDateTime schedule) { this.schedule = schedule; }
     
     public int getDurationMinutes() { return durationMinutes; }
-    public void setDurationMinutes(int durationMinutes) { this.durationMinutes = durationMinutes; }
+    public void setDurationMinutes(int durationMinutes) { 
+        if (durationMinutes <= 0) {
+            throw new IllegalArgumentException("Duration must be positive");
+        }
+        this.durationMinutes = durationMinutes; 
+    }
     
     public int getMaxCapacity() { return maxCapacity; }
-    public void setMaxCapacity(int maxCapacity) { this.maxCapacity = maxCapacity; }
+    public void setMaxCapacity(int maxCapacity) { 
+        if (maxCapacity <= 0) {
+            throw new IllegalArgumentException("Capacity must be positive");
+        }
+        this.maxCapacity = maxCapacity; 
+    }
     
     public int getCurrentEnrollment() { return currentEnrollment; }
-    public void setCurrentEnrollment(int currentEnrollment) { this.currentEnrollment = currentEnrollment; }
-    
-    // Override toString() method
+    public void setCurrentEnrollment(int currentEnrollment) { 
+        if (currentEnrollment < 0 || currentEnrollment > maxCapacity) {
+            throw new IllegalArgumentException("Enrollment must be between 0 and " + maxCapacity);
+        }
+        this.currentEnrollment = currentEnrollment; 
+    }
+
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");

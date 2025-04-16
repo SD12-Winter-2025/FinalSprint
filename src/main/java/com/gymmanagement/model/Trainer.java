@@ -1,5 +1,8 @@
 package com.gymmanagement.model;
 
+/**
+ * Gym trainer with specialization and experience tracking.
+ */
 public class Trainer extends User {
     private String specialization;
     private int yearsOfExperience;
@@ -13,12 +16,24 @@ public class Trainer extends User {
         super(username, passwordHash, email, "TRAINER");
     }
 
-    // Getters and Setters
-    public String getSpecialization() { return specialization; }
-    public void setSpecialization(String specialization) { this.specialization = specialization; }
+    public String getSpecialization() { 
+        return specialization; 
+    }
+
+    public void setSpecialization(String specialization) { 
+        this.specialization = specialization; 
+    }
     
-    public int getYearsOfExperience() { return yearsOfExperience; }
-    public void setYearsOfExperience(int yearsOfExperience) { this.yearsOfExperience = yearsOfExperience; }
+    public int getYearsOfExperience() { 
+        return yearsOfExperience; 
+    }
+
+    public void setYearsOfExperience(int yearsOfExperience) { 
+        if (yearsOfExperience < 0) {
+            throw new IllegalArgumentException("Experience cannot be negative");
+        }
+        this.yearsOfExperience = yearsOfExperience; 
+    }
 
     @Override
     public String toString() {

@@ -1,6 +1,5 @@
 package com.gymmanagement.service;
 
-
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
@@ -9,6 +8,9 @@ import com.gymmanagement.dao.MembershipDAO;
 import com.gymmanagement.exception.DatabaseException;
 import com.gymmanagement.model.Membership;
 
+/**
+ * Handles membership operations including purchases and revenue calculations.
+ */
 public class MembershipService {
     private final MembershipDAO membershipDAO;
     
@@ -26,9 +28,10 @@ public class MembershipService {
             membership.setStartDate(LocalDate.now());
             membership.setEndDate(LocalDate.now().plusMonths(1));
             membership.setPaymentStatus("PENDING");
+            
             return membershipDAO.create(membership);
         } catch (DatabaseException e) {
-            System.err.println("Error purchasing membership: " + e.getMessage());
+            System.err.println("Purchase failed: " + e.getMessage());
             return false;
         }
     }
@@ -37,7 +40,7 @@ public class MembershipService {
         try {
             return membershipDAO.findByUserId(userId);
         } catch (DatabaseException e) {
-            System.err.println("Error retrieving memberships for user " + userId + ": " + e.getMessage());
+            System.err.println("Failed to get memberships: " + e.getMessage());
             return List.of();
         }
     }
@@ -46,7 +49,7 @@ public class MembershipService {
         try {
             return membershipDAO.calculateTotalRevenue();
         } catch (SQLException e) {
-            throw new DatabaseException("Error calculating total revenue", e);
+            throw new DatabaseException("Revenue calculation failed", e);
         }
     }
 }

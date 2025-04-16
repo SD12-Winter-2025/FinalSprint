@@ -2,6 +2,9 @@ package com.gymmanagement.model;
 
 import java.time.LocalDate;
 
+/**
+ * Represents a user's gym membership with pricing and validity period.
+ */
 public class Membership {
     private int id;
     private int userId;
@@ -12,7 +15,6 @@ public class Membership {
     private double price;
     private String paymentStatus;
 
-    // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     

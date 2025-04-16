@@ -1,15 +1,18 @@
 package com.gymmanagement.menu;
 
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
+
 import com.gymmanagement.model.Membership;
 import com.gymmanagement.model.User;
 import com.gymmanagement.model.WorkoutClass;
 import com.gymmanagement.service.MembershipService;
 import com.gymmanagement.service.WorkoutClassService;
 
+/**
+ * Console interface for member operations.
+ */
 public class MemberMenu {
     private final Scanner scanner;
     private final MembershipService membershipService;
@@ -26,40 +29,50 @@ public class MemberMenu {
 
     public void show() {
         while (true) {
-            System.out.println("\n=== MEMBER MENU ===");
-            System.out.println("1. Browse Classes");
-            System.out.println("2. View My Memberships");
-            System.out.println("3. Purchase Membership");
-            System.out.println("4. Enroll in Class");
-            System.out.println("5. Logout");
-            System.out.print("Select an option: ");
-            
+            printMenu();
             int choice = scanner.nextInt();
             scanner.nextLine();
             
             try {
-                switch (choice) {
-                    case 1:
-                        browseClasses();
-                        break;
-                    case 2:
-                        viewMyMemberships();
-                        break;
-                    case 3:
-                        purchaseMembership();
-                        break;
-                    case 4:
-                        enrollInClass();
-                        break;
-                    case 5:
-                        return;
-                    default:
-                        System.out.println("Invalid option!");
+                if (!handleChoice(choice)) {
+                    break;
                 }
             } catch (SQLException e) {
                 System.err.println("Database error: " + e.getMessage());
             }
         }
+    }
+
+    private void printMenu() {
+        System.out.println("\n=== MEMBER MENU ===");
+        System.out.println("1. Browse Classes");
+        System.out.println("2. View My Memberships");
+        System.out.println("3. Purchase Membership");
+        System.out.println("4. Enroll in Class");
+        System.out.println("5. Logout");
+        System.out.print("Select an option: ");
+    }
+
+    private boolean handleChoice(int choice) throws SQLException {
+        switch (choice) {
+            case 1:
+                browseClasses();
+                break;
+            case 2:
+                viewMyMemberships();
+                break;
+            case 3:
+                purchaseMembership();
+                break;
+            case 4:
+                enrollInClass();
+                break;
+            case 5:
+                return false;
+            default:
+                System.out.println("Invalid option!");
+        }
+        return true;
     }
 
     private void browseClasses() throws SQLException {
@@ -95,20 +108,27 @@ public class MemberMenu {
         String type;
         double price;
         switch (choice) {
-            case 1: type = "Basic"; price = 29.99; break;
-            case 2: type = "Premium"; price = 49.99; break;
-            case 3: type = "Platinum"; price = 79.99; break;
+            case 1:
+                type = "Basic";
+                price = 29.99;
+                break;
+            case 2:
+                type = "Premium";
+                price = 49.99;
+                break;
+            case 3:
+                type = "Platinum";
+                price = 79.99;
+                break;
             default:
                 System.out.println("Invalid selection.");
                 return;
         }
 
-        
-
         boolean success = membershipService.purchaseMembership(
             currentUser.getId(),
             type,
-            "Standard membership", // Added description
+            "Standard membership",
             price
         );
         System.out.println(success ? "Purchase successful!" : "Purchase failed.");
@@ -120,7 +140,8 @@ public class MemberMenu {
         int classId = scanner.nextInt();
         scanner.nextLine();
         
-        boolean success = classService.enrollMember(currentUser.getId(), classId);
-        System.out.println(success ? "Enrollment successful!" : "Enrollment failed.");
+        System.out.println(classService.enrollMember(currentUser.getId(), classId) 
+            ? "Enrollment successful!" 
+            : "Enrollment failed.");
     }
 }
