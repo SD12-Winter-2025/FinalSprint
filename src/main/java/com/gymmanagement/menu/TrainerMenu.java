@@ -1,15 +1,18 @@
 package com.gymmanagement.menu;
 
-
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
+
 import com.gymmanagement.model.User;
 import com.gymmanagement.model.WorkoutClass;
 import com.gymmanagement.service.MembershipService;
 import com.gymmanagement.service.WorkoutClassService;
 
+/**
+ * Console interface for trainer operations.
+ */
 public class TrainerMenu {
     private final Scanner scanner;
     private final MembershipService membershipService;
@@ -17,7 +20,7 @@ public class TrainerMenu {
     private final User currentUser;
 
     public TrainerMenu(Scanner scanner, MembershipService membershipService,
-                    WorkoutClassService classService, User currentUser) {
+                     WorkoutClassService classService, User currentUser) {
         this.scanner = scanner;
         this.membershipService = membershipService;
         this.classService = classService;
@@ -26,44 +29,54 @@ public class TrainerMenu {
 
     public void show() {
         while (true) {
-            System.out.println("\n=== TRAINER MENU ===");
-            System.out.println("1. View My Classes");
-            System.out.println("2. Create New Class");
-            System.out.println("3. Update Class");
-            System.out.println("4. Delete Class");
-            System.out.println("5. Purchase Membership");
-            System.out.println("6. Logout");
-            System.out.print("Select an option: ");
-
+            printMenu();
             int choice = scanner.nextInt();
             scanner.nextLine();
-
+            
             try {
-                switch (choice) {
-                    case 1:
-                        viewMyClasses();
-                        break;
-                    case 2:
-                        createClass();
-                        break;
-                    case 3:
-                        updateClass();
-                        break;
-                    case 4:
-                        deleteClass();
-                        break;
-                    case 5:
-                        purchaseMembership();
-                        break;
-                    case 6:
-                        return;
-                    default:
-                        System.out.println("Invalid option!");
+                if (!handleChoice(choice)) {
+                    break;
                 }
             } catch (SQLException e) {
                 System.err.println("Database error: " + e.getMessage());
             }
         }
+    }
+
+    private void printMenu() {
+        System.out.println("\n=== TRAINER MENU ===");
+        System.out.println("1. View My Classes");
+        System.out.println("2. Create New Class");
+        System.out.println("3. Update Class");
+        System.out.println("4. Delete Class");
+        System.out.println("5. Purchase Membership");
+        System.out.println("6. Logout");
+        System.out.print("Select an option: ");
+    }
+
+    private boolean handleChoice(int choice) throws SQLException {
+        switch (choice) {
+            case 1:
+                viewMyClasses();
+                break;
+            case 2:
+                createClass();
+                break;
+            case 3:
+                updateClass();
+                break;
+            case 4:
+                deleteClass();
+                break;
+            case 5:
+                purchaseMembership();
+                break;
+            case 6:
+                return false;
+            default:
+                System.out.println("Invalid option!");
+        }
+        return true;
     }
 
     private void viewMyClasses() throws SQLException {
@@ -99,8 +112,9 @@ public class TrainerMenu {
         newClass.setMaxCapacity(scanner.nextInt());
         scanner.nextLine();
 
-        boolean success = classService.createClass(newClass);
-        System.out.println(success ? "Class created!" : "Failed to create class.");
+        System.out.println(classService.createClass(newClass) 
+            ? "Class created!" 
+            : "Failed to create class.");
     }
 
     private void updateClass() throws SQLException {
@@ -118,45 +132,38 @@ public class TrainerMenu {
         System.out.println("\n=== UPDATE CLASS ===");
         System.out.println("Leave blank to keep current value");
 
-        System.out.print("Class Name [" + existingClass.getName() + "]: ");
-        String name = scanner.nextLine();
-        if (!name.isEmpty()) {
-            existingClass.setName(name);
-        }
-
-        System.out.print("Description [" + existingClass.getDescription() + "]: ");
-        String description = scanner.nextLine();
-        if (!description.isEmpty()) {
-            existingClass.setDescription(description);
-        }
-
-        System.out.print("Type [" + existingClass.getType() + "]: ");
-        String type = scanner.nextLine();
-        if (!type.isEmpty()) {
-            existingClass.setType(type);
-        }
-
+        updateField("Class Name", existingClass.getName(), existingClass::setName);
+        updateField("Description", existingClass.getDescription(), existingClass::setDescription);
+        updateField("Type", existingClass.getType(), existingClass::setType);
+        
         System.out.print("Schedule [" + existingClass.getSchedule() + "]: ");
         String schedule = scanner.nextLine();
         if (!schedule.isEmpty()) {
             existingClass.setSchedule(LocalDateTime.parse(schedule));
         }
 
-        System.out.print("Duration (minutes) [" + existingClass.getDurationMinutes() + "]: ");
-        String duration = scanner.nextLine();
-        if (!duration.isEmpty()) {
-            existingClass.setDurationMinutes(Integer.parseInt(duration));
-        }
+        updateIntField("Duration (minutes)", existingClass.getDurationMinutes(), existingClass::setDurationMinutes);
+        updateIntField("Max Capacity", existingClass.getMaxCapacity(), existingClass::setMaxCapacity);
 
-        System.out.print("Max Capacity [" + existingClass.getMaxCapacity() + "]: ");
-        String capacity = scanner.nextLine();
-        if (!capacity.isEmpty()) {
-            existingClass.setMaxCapacity(Integer.parseInt(capacity));
-        }
+        System.out.println(classService.updateClass(existingClass) 
+            ? "Class updated successfully!" 
+            : "Failed to update class.");
+    }
 
-        boolean success = classService.updateClass(existingClass);
-        System.out.println(success ? "Class updated successfully!" : "Failed to update class.");
-    
+    private void updateField(String prompt, String currentValue, java.util.function.Consumer<String> setter) {
+        System.out.print(prompt + " [" + currentValue + "]: ");
+        String value = scanner.nextLine();
+        if (!value.isEmpty()) {
+            setter.accept(value);
+        }
+    }
+
+    private void updateIntField(String prompt, int currentValue, java.util.function.Consumer<Integer> setter) {
+        System.out.print(prompt + " [" + currentValue + "]: ");
+        String value = scanner.nextLine();
+        if (!value.isEmpty()) {
+            setter.accept(Integer.valueOf(value));
+        }
     }
 
     private void deleteClass() throws SQLException {
@@ -165,11 +172,11 @@ public class TrainerMenu {
         int classId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Confirm deletion (y/n): ");
-
+        System.out.print("Confirm (y/n): ");
         if (scanner.nextLine().equalsIgnoreCase("y")) {
-            boolean success = classService.deleteClass(classId);
-            System.out.println(success ? "Class deleted!" : "Failed to delete class.");
+            System.out.println(classService.deleteClass(classId) 
+                ? "Class deleted!" 
+                : "Failed to delete class.");
         }
     }
 
@@ -182,24 +189,32 @@ public class TrainerMenu {
     
         int choice = scanner.nextInt();
         scanner.nextLine();
-    
+        
         String type;
         double price;
         switch (choice) {
-            case 1: type = "Basic"; price = 29.99; break;
-            case 2: type = "Premium"; price = 49.99; break;
-            case 3: type = "Platinum"; price = 79.99; break;
+            case 1:
+                type = "Basic";
+                price = 29.99;
+                break;
+            case 2:
+                type = "Premium";
+                price = 49.99;
+                break;
+            case 3:
+                type = "Platinum";
+                price = 79.99;
+                break;
             default:
                 System.out.println("Invalid choice.");
                 return;
         }
 
-        boolean success = membershipService.purchaseMembership(
+        System.out.println(membershipService.purchaseMembership(
             currentUser.getId(),
             type,
-            "Standard membership", // Added description parameter
+            "Standard membership",
             price
-        );
-        System.out.println(success ? "Membership purchased!" : "Purchase failed.");
+        ) ? "Membership purchased!" : "Purchase failed.");
     }
 }

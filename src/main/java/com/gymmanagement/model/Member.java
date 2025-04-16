@@ -2,6 +2,9 @@ package com.gymmanagement.model;
 
 import java.time.LocalDate;
 
+/**
+ * Gym member with additional fitness tracking attributes.
+ */
 public class Member extends User {
     private LocalDate membershipExpiry;
     private String fitnessGoals;
@@ -15,12 +18,21 @@ public class Member extends User {
         super(username, passwordHash, email, "MEMBER");
     }
 
-    // Getters and Setters
-    public LocalDate getMembershipExpiry() { return membershipExpiry; }
-    public void setMembershipExpiry(LocalDate membershipExpiry) { this.membershipExpiry = membershipExpiry; }
+    public LocalDate getMembershipExpiry() { 
+        return membershipExpiry; 
+    }
+
+    public void setMembershipExpiry(LocalDate membershipExpiry) { 
+        this.membershipExpiry = membershipExpiry; 
+    }
     
-    public String getFitnessGoals() { return fitnessGoals; }
-    public void setFitnessGoals(String fitnessGoals) { this.fitnessGoals = fitnessGoals; }
+    public String getFitnessGoals() { 
+        return fitnessGoals; 
+    }
+
+    public void setFitnessGoals(String fitnessGoals) { 
+        this.fitnessGoals = fitnessGoals; 
+    }
 
     @Override
     public String toString() {

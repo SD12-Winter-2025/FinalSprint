@@ -1,12 +1,14 @@
 package com.gymmanagement.service;
 
-
 import java.util.List;
 
 import com.gymmanagement.dao.WorkoutClassDAO;
 import com.gymmanagement.exception.DatabaseException;
 import com.gymmanagement.model.WorkoutClass;
 
+/**
+ * Handles workout class operations including scheduling and enrollment.
+ */
 public class WorkoutClassService {
     private final WorkoutClassDAO workoutClassDAO;
 
@@ -18,8 +20,8 @@ public class WorkoutClassService {
         try {
             return workoutClassDAO.findAll();
         } catch (DatabaseException e) {
-            System.err.println("Error retrieving all classes: " + e.getMessage());
-            return List.of(); // Return an empty list on error
+            System.err.println("Failed to get classes: " + e.getMessage());
+            return List.of();
         }
     }
 
@@ -27,8 +29,8 @@ public class WorkoutClassService {
         try {
             return workoutClassDAO.findByTrainerId(trainerId);
         } catch (DatabaseException e) {
-            System.err.println("Error retrieving classes for trainer: " + e.getMessage());
-            return List.of(); // Return an empty list on error
+            System.err.println("Failed to get trainer classes: " + e.getMessage());
+            return List.of();
         }
     }
 
@@ -36,7 +38,7 @@ public class WorkoutClassService {
         try {
             return workoutClassDAO.create(workoutClass);
         } catch (DatabaseException e) {
-            System.err.println("Error creating class: " + e.getMessage());
+            System.err.println("Create class failed: " + e.getMessage());
             return false;
         }
     }
@@ -45,7 +47,7 @@ public class WorkoutClassService {
         try {
             return workoutClassDAO.findById(classId);
         } catch (DatabaseException e) {
-            System.err.println("Error retrieving class by ID: " + e.getMessage());
+            System.err.println("Failed to get class: " + e.getMessage());
             return null;
         }
     }
@@ -54,7 +56,7 @@ public class WorkoutClassService {
         try {
             return workoutClassDAO.update(workoutClass);
         } catch (DatabaseException e) {
-            System.err.println("Error updating class: " + e.getMessage());
+            System.err.println("Update failed: " + e.getMessage());
             return false;
         }
     }
@@ -63,7 +65,7 @@ public class WorkoutClassService {
         try {
             return workoutClassDAO.delete(classId);
         } catch (DatabaseException e) {
-            System.err.println("Error deleting class: " + e.getMessage());
+            System.err.println("Delete failed: " + e.getMessage());
             return false;
         }
     }
@@ -72,7 +74,7 @@ public class WorkoutClassService {
         try {
             return workoutClassDAO.enrollMember(memberId, classId);
         } catch (DatabaseException e) {
-            System.err.println("Error enrolling member in class: " + e.getMessage());
+            System.err.println("Enrollment failed: " + e.getMessage());
             return false;
         }
     }

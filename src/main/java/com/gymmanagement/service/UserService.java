@@ -1,6 +1,5 @@
 package com.gymmanagement.service;
 
-
 import java.util.List;
 
 import com.gymmanagement.dao.UserDAO;
@@ -8,24 +7,25 @@ import com.gymmanagement.exception.DatabaseException;
 import com.gymmanagement.model.User;
 import com.gymmanagement.util.PasswordHasher;
 
+/**
+ * Handles user authentication and management operations.
+ */
 public class UserService {
     private final UserDAO userDAO;
 
     public UserService() {
         this.userDAO = new UserDAO();
+        initializeDefaultAdmin();
+    }
 
-        // Create default admin
+    private void initializeDefaultAdmin() {
         try {
             if (userDAO.findByUsername("admin") == null) {
-                User admin = new User();
-                admin.setUsername("admin");
-                admin.setPasswordHash(PasswordHasher.hashPassword("adminpassword"));
-                admin.setEmail("admin@gym.com");
-                admin.setRole("ADMIN");
+                User admin = new User("admin", PasswordHasher.hashPassword("adminpassword"), "admin@gym.com", "ADMIN");
                 userDAO.create(admin);
             }
         } catch (DatabaseException e) {
-            System.err.println("Error initializing default admin: " + e.getMessage());
+            System.err.println("Admin initialization failed: " + e.getMessage());
         }
     }
 
@@ -36,12 +36,15 @@ public class UserService {
                 return user;
             }
         } catch (DatabaseException e) {
-            System.err.println("Error during login: " + e.getMessage());
+            System.err.println("Login error: " + e.getMessage());
         }
         return null;
     }
 
     public boolean register(User user, String password) {
+        if (password.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters");
+        }
         try {
             if (userDAO.findByUsername(user.getUsername()) != null) {
                 return false;
@@ -49,7 +52,7 @@ public class UserService {
             user.setPasswordHash(PasswordHasher.hashPassword(password));
             return userDAO.create(user);
         } catch (DatabaseException e) {
-            System.err.println("Error during user registration: " + e.getMessage());
+            System.err.println("Registration failed: " + e.getMessage());
             return false;
         }
     }
@@ -58,8 +61,8 @@ public class UserService {
         try {
             return userDAO.findAll();
         } catch (DatabaseException e) {
-            System.err.println("Error retrieving users: " + e.getMessage());
-            return List.of(); // Return an empty list on error
+            System.err.println("Failed to get users: " + e.getMessage());
+            return List.of();
         }
     }
 
@@ -67,7 +70,7 @@ public class UserService {
         try {
             return userDAO.delete(userId);
         } catch (DatabaseException e) {
-            System.err.println("Error deleting user: " + e.getMessage());
+            System.err.println("Delete failed: " + e.getMessage());
             return false;
         }
     }

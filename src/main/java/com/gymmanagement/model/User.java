@@ -2,6 +2,9 @@ package com.gymmanagement.model;
 
 import java.time.LocalDateTime;
 
+/**
+ * Base entity for all system users with core authentication and profile data.
+ */
 public class User {
     private int id;
     private String username;
@@ -12,7 +15,6 @@ public class User {
     private String role; // ADMIN, TRAINER, MEMBER
     private LocalDateTime createdAt;
 
-    // Constructors
     public User() {
         this.createdAt = LocalDateTime.now();
     }
@@ -25,7 +27,7 @@ public class User {
         this.role = role;
     }
 
-    // Getters and Setters
+    // --- Getters and Setters ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     
@@ -58,4 +60,3 @@ public class User {
         );
     }
 }
-

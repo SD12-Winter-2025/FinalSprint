@@ -1,6 +1,5 @@
 package com.gymmanagement;
 
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -18,7 +17,10 @@ import com.gymmanagement.service.MembershipService;
 import com.gymmanagement.service.UserService;
 import com.gymmanagement.service.WorkoutClassService;
 
-public class App {
+/**
+ * Main application entry point for Gym Management System.
+ */
+public final class App {
     private final Scanner scanner;
     private final UserService userService;
     private final MembershipService membershipService;
@@ -33,47 +35,37 @@ public class App {
     }
 
     public static void main(String[] args) {
-        App app = new App();
-
-        // Initialize the database schema and data
-        try {
-            app.initializeDatabase(
-                "gym-management\\gym-management\\src\\main\\resources\\sql\\schema.sql",
-                "gym-management\\gym-management\\src\\main\\resources\\sql\\data.sql"
-            );
-        } catch (Exception e) { // General catch block for exceptions
-            System.err.println("Error during database initialization: " + e.getMessage());
-            e.printStackTrace(); // Include stack trace for better debugging
-        }
-
-        // Start the application
-        app.start();
+        new App().run();
     }
 
-    private void initializeDatabase(String schemaPath, String dataPath) {
+    private void run() {
+        try (scanner) {
+            initializeDatabase(
+                "src/main/resources/sql/schema.sql",
+                "src/main/resources/sql/data.sql"
+            );
+            start();
+        } catch (SQLException | IOException e) {
+            System.err.println("Application error: " + e.getMessage());
+        }
+    }
+
+    private void initializeDatabase(String schemaPath, String dataPath) throws SQLException, IOException {
         try (Connection conn = DatabaseConfig.getConnection();
             Statement stmt = conn.createStatement()) {
-
-            // Load schema
-            System.out.println("Initializing database schema...");
-            String schemaSql = new String(Files.readAllBytes(Paths.get(schemaPath)));
-            stmt.execute(schemaSql);
-            System.out.println("Database schema initialized successfully!");
-
-            // Load data
-            System.out.println("Initializing database data...");
-            String dataSql = new String(Files.readAllBytes(Paths.get(dataPath)));
-            stmt.execute(dataSql);
-            System.out.println("Database data initialized successfully!");
-
-        } catch (SQLException e) {
-            System.err.println("SQL Error during database initialization: " + e.getMessage());
-            e.printStackTrace(); // Include stack trace for better debugging
-        } catch (IOException e) {
-            System.err.println("I/O Error during database initialization: " + e.getMessage());
-            e.printStackTrace(); // Include stack trace for better debugging
+            
+            executeSqlFile(stmt, schemaPath, "Database schema initialized");
+            executeSqlFile(stmt, dataPath, "Database data loaded");
         }
     }
+
+    private void executeSqlFile(Statement stmt, String filePath, String successMessage) throws IOException, SQLException {
+        System.out.println("Loading " + filePath + "...");
+        String sql = new String(Files.readAllBytes(Paths.get(filePath)));
+        stmt.execute(sql);
+        System.out.println(successMessage);
+    }
+
     public void start() {
         while (true) {
             System.out.println("\n=== Gym Management System ===");
@@ -93,8 +85,7 @@ public class App {
                     register();
                     break;
                 case 3:
-                    System.out.println("Exiting system...");
-                    scanner.close();
+                    System.out.println("Goodbye!");
                     return;
                 default:
                     System.out.println("Invalid option!");
@@ -119,62 +110,49 @@ public class App {
     
     private void register() {
         System.out.println("\n=== REGISTER NEW USER ===");
-        System.out.print("Username: ");
-        String username = scanner.nextLine();
+        User newUser = new User();
         
-        System.out.print("Password: ");
-        String password = scanner.nextLine();
-        
-        System.out.print("Email: ");
-        String email = scanner.nextLine();
-        
-        System.out.print("Phone Number: ");
-        String phone = scanner.nextLine();
-        
-        System.out.print("Address: ");
-        String address = scanner.nextLine();
-        
+        newUser.setUsername(readInput("Username: "));
+        String password = readInput("Password: ");
+        newUser.setEmail(readInput("Email: "));
+        newUser.setPhoneNumber(readInput("Phone Number: "));
+        newUser.setAddress(readInput("Address: "));
+        newUser.setRole(selectRole());
+
+        boolean success = userService.register(newUser, password);
+        System.out.println(success ? "Registration successful!" : "Registration failed");
+    }
+    
+    private String selectRole() {
         System.out.println("Select Role:");
         System.out.println("1. Admin");
         System.out.println("2. Trainer");
         System.out.println("3. Member");
         System.out.print("Choice: ");
+        
         int roleChoice = scanner.nextInt();
         scanner.nextLine();
         
-        String role;
         switch (roleChoice) {
             case 1:
-                role = "ADMIN";
-                break;
+                return "ADMIN";
             case 2:
-                role = "TRAINER";
-                break;
-            case 3:
-                role = "MEMBER";
-                break;
+                return "TRAINER";
             default:
-                System.out.println("Invalid choice, defaulting to Member");
-                role = "MEMBER";
+                return "MEMBER";
         }
-        
-        User newUser = new User();
-        newUser.setUsername(username);
-        newUser.setEmail(email);
-        newUser.setPhoneNumber(phone);
-        newUser.setAddress(address);
-        newUser.setRole(role);
-        
-        boolean success = userService.register(newUser, password);
-        if (success) {
-            System.out.println("Registration successful! You can now login.");
-        } else {
-            System.out.println("Registration failed. Username or email may already exist.");
-        }
+    }
+
+    private String readInput(String prompt) {
+        System.out.print(prompt);
+        return scanner.nextLine();
     }
     
     private void showRoleMenu() {
-        switch (currentUser.getRole()) {
+        String role = currentUser.getRole();
+        if (null == role) {
+            System.out.println("Unknown role!");
+        } else switch (role) {
             case "ADMIN":
                 new AdminMenu(scanner, userService, membershipService, classService).show();
                 break;
@@ -185,7 +163,8 @@ public class App {
                 new MemberMenu(scanner, membershipService, classService, currentUser).show();
                 break;
             default:
-                System.out.println("Unknown role detected!");
+                System.out.println("Unknown role!");
+                break;
         }
     }
 }
