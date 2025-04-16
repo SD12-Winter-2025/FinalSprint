@@ -3,6 +3,7 @@ package com.gymmanagement.service;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import com.gymmanagement.dao.MembershipDAO;
 import com.gymmanagement.exception.DatabaseException;
@@ -13,11 +14,11 @@ import com.gymmanagement.model.Membership;
  */
 public class MembershipService {
     private final MembershipDAO membershipDAO;
-    
+
     public MembershipService() {
         this.membershipDAO = new MembershipDAO();
     }
-    
+
     public boolean purchaseMembership(int userId, String type, String description, double price) {
         try {
             Membership membership = new Membership();
@@ -28,14 +29,14 @@ public class MembershipService {
             membership.setStartDate(LocalDate.now());
             membership.setEndDate(LocalDate.now().plusMonths(1));
             membership.setPaymentStatus("PENDING");
-            
+
             return membershipDAO.create(membership);
         } catch (DatabaseException e) {
             System.err.println("Purchase failed: " + e.getMessage());
             return false;
         }
     }
-    
+
     public List<Membership> getUserMemberships(int userId) {
         try {
             return membershipDAO.findByUserId(userId);
@@ -50,6 +51,22 @@ public class MembershipService {
             return membershipDAO.calculateTotalRevenue();
         } catch (SQLException e) {
             throw new DatabaseException("Revenue calculation failed", e);
+        }
+    }
+
+    public Map<String, Double> getRevenueByMembershipType() throws DatabaseException {
+        try {
+            return membershipDAO.calculateRevenueByType();
+        } catch (SQLException e) {
+            throw new DatabaseException("Error calculating revenue by type", e);
+        }
+    }
+
+    public Map<String, Integer> getMembershipCounts() throws DatabaseException {
+        try {
+            return membershipDAO.countMembershipsByType();
+        } catch (SQLException e) {
+            throw new DatabaseException("Error counting memberships", e);
         }
     }
 }

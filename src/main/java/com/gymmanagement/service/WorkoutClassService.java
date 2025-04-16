@@ -1,5 +1,6 @@
 package com.gymmanagement.service;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import com.gymmanagement.dao.WorkoutClassDAO;
@@ -37,11 +38,12 @@ public class WorkoutClassService {
     public boolean createClass(WorkoutClass workoutClass) {
         try {
             return workoutClassDAO.create(workoutClass);
-        } catch (DatabaseException e) {
-            System.err.println("Create class failed: " + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Error creating class: " + e.getMessage());
             return false;
         }
     }
+    
 
     public WorkoutClass getClassById(int classId) {
         try {
@@ -78,4 +80,13 @@ public class WorkoutClassService {
             return false;
         }
     }
+
+    public List<WorkoutClass> getEnrolledClasses(int userId) throws SQLException {
+        if (userId <= 0) {
+            throw new IllegalArgumentException("Invalid user ID provided");
+        }
+        return workoutClassDAO.findClassesByUserId(userId);
+    }
+    
+
 }

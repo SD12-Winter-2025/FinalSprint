@@ -38,7 +38,7 @@ public class DatabaseConfig {
         }
         
         try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement()) {
+            Statement stmt = conn.createStatement()) {
             stmt.execute(Files.readString(Paths.get(filePath)));
             System.out.println("Executed: " + filePath);
         }

@@ -59,14 +59,41 @@ public class WorkoutClass {
         this.currentEnrollment = currentEnrollment; 
     }
 
-    @Override
-    public String toString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    /**
+     * Generates the table header for displaying classes.
+     */
+    public static String getTableHeader() {
         return String.format(
-            "Class ID: %d\nName: %s\nDescription: %s\nType: %s\nTrainer ID: %d\nSchedule: %s\nDuration: %d minutes\nCapacity: %d/%d\n",
-            id, name, description, type, trainerId, 
-            (schedule != null ? schedule.format(formatter) : "N/A"),
-            durationMinutes, currentEnrollment, maxCapacity
+            "\n+------+-----------------+----------------------+----------+---------------------+----------------+----------------+%n" +
+            "| %-4s | %-15s | %-20s | %-8s | %-19s | %-14s | %-14s |%n" +
+            "+------+-----------------+----------------------+----------+---------------------+----------------+----------------+",
+            "ID", "Name", "Type", "Trainer", "Schedule", "Duration (min)", "Capacity"
+        );
+    }
+
+    /**
+     * Generates the table footer for displaying classes.
+     */
+    public static String getTableFooter() {
+        return "+------+-----------------+----------------------+----------+---------------------+----------------+----------------+\n";
+    }
+
+    /**
+     * Formats class data into a table row.
+     */
+    public String toTableRow() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String scheduleStr = (schedule != null) ? schedule.format(formatter) : "N/A";
+        
+        return String.format(
+            "| %-4d | %-15s | %-20s | %-8d | %-19s | %-14d | %-14s |",
+            id,
+            name,
+            type,
+            trainerId,
+            scheduleStr,
+            durationMinutes,
+            currentEnrollment + "/" + maxCapacity
         );
     }
 }
