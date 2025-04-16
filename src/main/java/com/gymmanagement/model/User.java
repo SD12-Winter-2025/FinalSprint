@@ -52,6 +52,38 @@ public class User {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
+
+    //Adding table display for User Information
+    public static String getTableHeader() {
+        return String.format(
+            "\n+------+-----------------+----------------------+----------+--------------+----------------------+%n" +
+            "| %-4s | %-15s | %-20s | %-8s | %-12s | %-20s |%n" +
+            "+------+-----------------+----------------------+----------+--------------+----------------------+",
+            "ID", "Username", "Email", "Role", "Phone", "Address"
+        );
+    }
+
+    public static String getTableFooter() {
+        return "+------+-----------------+----------------------+----------+--------------+----------------------+\n";
+    }
+
+    public String toTableRow() {
+        // Handle null values safely
+        String phone = (phoneNumber != null) ? phoneNumber : "N/A";
+        String addr = (address != null) ? address : "N/A";
+        
+        return String.format(
+            "| %-4d | %-15s | %-20s | %-8s | %-12s | %-20s |",
+            id, 
+            username, 
+            email, 
+            role, 
+            phone, 
+            addr
+        );
+    }
+
+
     @Override
     public String toString() {
         return String.format(

@@ -2,10 +2,12 @@ package com.gymmanagement.menu;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import com.gymmanagement.exception.DatabaseException;
 import com.gymmanagement.model.User;
+import com.gymmanagement.model.WorkoutClass;
 import com.gymmanagement.service.MembershipService;
 import com.gymmanagement.service.UserService;
 import com.gymmanagement.service.WorkoutClassService;
@@ -32,14 +34,18 @@ public class AdminMenu {
             printMenu();
             int choice = scanner.nextInt();
             scanner.nextLine();
-            
+    
             try {
                 handleChoice(choice);
+                if (choice == 5) { // Logout scenario
+                    break;
+                }
             } catch (SQLException e) {
                 System.err.println("Database error: " + e.getMessage());
             }
         }
     }
+    
 
     private void printMenu() {
         System.out.println("\n=== ADMIN MENU ===");
@@ -66,20 +72,33 @@ public class AdminMenu {
                 viewAllClasses();
                 break;
             case 5:
-                System.exit(0);
-                break;
+                System.out.println("Logging out...");
+                return; // Exit the Admin menu and return to start()
             default:
-                System.out.println("Invalid option!");
+                System.out.println("Invalid option! Please select a valid menu item.");
         }
     }
+    
 
+    //Table display of User Information
     private void viewAllUsers() throws SQLException {
         List<User> users = userService.getAllUsers();
         if (users.isEmpty()) {
-            System.out.println("No users found.");
+            System.out.println("\nNo users found.");
         } else {
             System.out.println("\n=== ALL USERS ===");
-            users.forEach(System.out::println);
+            
+            // Print table header
+            System.out.println(User.getTableHeader());
+            
+            // Print each user as a row
+            users.forEach(user -> System.out.println(user.toTableRow()));
+            
+            // Print table footer
+            System.out.println(User.getTableFooter());
+            
+            // Show count
+            System.out.println("Total users: " + users.size());
         }
     }
 
@@ -98,15 +117,49 @@ public class AdminMenu {
 
     private void viewRevenue() {
         try {
-            System.out.printf("\nTotal Revenue: $%.2f\n", 
-                membershipService.calculateTotalRevenue());
+            double totalRevenue = membershipService.calculateTotalRevenue();
+            Map<String, Double> revenueByType = membershipService.getRevenueByMembershipType();
+            Map<String, Integer> membershipCounts = membershipService.getMembershipCounts();
+            
+            System.out.println("\n+-----------------+--------+-------------+----------+");
+            System.out.println("| Membership Type | Count  | Revenue     | % of Total |");
+            System.out.println("+-----------------+--------+-------------+----------+");
+            
+            revenueByType.forEach((type, revenue) -> {
+                int count = membershipCounts.getOrDefault(type, 0);
+                double percentage = (totalRevenue > 0) ? (revenue / totalRevenue) * 100 : 0;
+                System.out.printf("| %-15s | %-6d | $%-10.2f | %-8.1f |%n",
+                    type, count, revenue, percentage);
+            });
+            
+            System.out.println("+-----------------+--------+-------------+----------+");
+            System.out.printf("| %-15s | %-6s | $%-10.2f | %-8s |%n",
+                "TOTAL", "", totalRevenue, "100%");
+            System.out.println("+-----------------+--------+-------------+----------+");
+            
         } catch (DatabaseException e) {
-            System.err.println("Error retrieving revenue: " + e.getMessage());
+            System.err.println("Error retrieving revenue data: " + e.getMessage());
         }
     }
     
     private void viewAllClasses() throws SQLException {
+    List<WorkoutClass> classes = classService.getAllClasses();
+    if (classes.isEmpty()) {
+        System.out.println("\nNo classes found.");
+    } else {
         System.out.println("\n=== ALL CLASSES ===");
-        classService.getAllClasses().forEach(System.out::println);
+        
+        // Print table header
+        System.out.println(WorkoutClass.getTableHeader());
+        
+        // Print each class as a row
+        classes.forEach(wc -> System.out.println(wc.toTableRow()));
+        
+        // Print table footer
+        System.out.println(WorkoutClass.getTableFooter());
+        
+        // Show count
+        System.out.println("Total classes: " + classes.size());
     }
+}
 }

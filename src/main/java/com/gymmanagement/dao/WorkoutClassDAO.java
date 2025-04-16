@@ -74,28 +74,52 @@ public class WorkoutClassDAO {
         }
     }
 
-    public boolean create(WorkoutClass wc) throws DatabaseException {
-        String sql = "INSERT INTO workout_classes (name, description, type, trainer_id, schedule, "
-                   + "duration_minutes, max_capacity) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        
+    public List<WorkoutClass> findClassesByUserId(int userId) throws SQLException {
+        List<WorkoutClass> enrolledClasses = new ArrayList<>();
+        String query = "SELECT wc.class_id, wc.name, wc.description, wc.type, wc.trainer_id, " +
+                    "wc.schedule, wc.duration_minutes, wc.max_capacity, wc.current_enrollment " +
+                    "FROM workout_classes wc " +
+                    "JOIN class_enrollments ce ON wc.class_id = ce.class_id " +
+                       "WHERE ce.member_id = ?"; // Ensuring we fetch classes by member_id
+    
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            
-            setClassParameters(stmt, wc);
-            
-            if (stmt.executeUpdate() > 0) {
-                try (ResultSet rs = stmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        wc.setId(rs.getInt(1));
-                    }
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+    
+            // Bind the userId to the query
+            stmt.setInt(1, userId);
+    
+            // Execute the query
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    // Map the result set to a WorkoutClass object
+                    WorkoutClass wc = mapResultSetToWorkoutClass(rs);
+                    enrolledClasses.add(wc);
                 }
-                return true;
             }
-            return false;
-        } catch (SQLException e) {
-            throw new DatabaseException("Failed to create class", e);
+        }
+        // Return the list of enrolled classes
+        return enrolledClasses;
+    }
+    
+
+    public boolean create(WorkoutClass wc) throws SQLException {
+        String sql = "INSERT INTO workout_classes (name, description, type, trainer_id, schedule, duration_minutes, max_capacity) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DatabaseConfig.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+    
+            stmt.setString(1, wc.getName());
+            stmt.setString(2, wc.getDescription());
+            stmt.setString(3, wc.getType());
+            stmt.setInt(4, wc.getTrainerId());
+            stmt.setTimestamp(5, Timestamp.valueOf(wc.getSchedule()));
+            stmt.setInt(6, wc.getDurationMinutes());
+            stmt.setInt(7, wc.getMaxCapacity());
+    
+            return stmt.executeUpdate() > 0;
         }
     }
+    
 
     public boolean update(WorkoutClass wc) throws DatabaseException {
         String sql = "UPDATE workout_classes SET name = ?, description = ?, type = ?, schedule = ?, "
@@ -191,3 +215,4 @@ public class WorkoutClassDAO {
         return wc;
     }
 }
+

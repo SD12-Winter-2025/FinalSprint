@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +59,36 @@ public class MembershipDAO {
         }
     }
 
+    public Map<String, Double> calculateRevenueByType() throws SQLException {
+        Map<String, Double> revenueByType = new LinkedHashMap<>();
+        String sql = "SELECT type, SUM(price) FROM memberships GROUP BY type";
+        
+        try (Connection conn = DatabaseConfig.getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                revenueByType.put(rs.getString(1), rs.getDouble(2));
+            }
+        }
+        return revenueByType;
+    }
+
+    public Map<String, Integer> countMembershipsByType() throws SQLException {
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        String sql = "SELECT type, COUNT(*) FROM memberships GROUP BY type";
+        
+        try (Connection conn = DatabaseConfig.getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                counts.put(rs.getString(1), rs.getInt(2));
+            }
+        }
+        return counts;
+    }
+
     /**
      * @return Total revenue from paid memberships (0.0 if none)
      */
@@ -64,8 +96,8 @@ public class MembershipDAO {
         String sql = "SELECT SUM(price) AS total FROM memberships WHERE payment_status = 'PAID'";
         
         try (Connection conn = DatabaseConfig.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
             
             return rs.next() ? rs.getDouble("total") : 0.0;
         }

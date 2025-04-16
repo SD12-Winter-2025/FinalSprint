@@ -49,9 +49,11 @@ public class MemberMenu {
         System.out.println("2. View My Memberships");
         System.out.println("3. Purchase Membership");
         System.out.println("4. Enroll in Class");
-        System.out.println("5. Logout");
+        System.out.println("5. View Enrolled Classes"); // New option added
+        System.out.println("6. Logout");
         System.out.print("Select an option: ");
     }
+    
 
     private boolean handleChoice(int choice) throws SQLException {
         switch (choice) {
@@ -68,11 +70,15 @@ public class MemberMenu {
                 enrollInClass();
                 break;
             case 5:
-                return false;
+                viewEnrolledClasses();
+                break;
+            case 6:
+                System.out.println("Logging out...");
+                return false; // Signal to exit the loop
             default:
-                System.out.println("Invalid option!");
+                System.out.println("Invalid option! Please select a valid menu item.");
         }
-        return true;
+        return true; // Continue the loop
     }
 
     private void browseClasses() throws SQLException {
@@ -81,9 +87,12 @@ public class MemberMenu {
             System.out.println("No classes available.");
         } else {
             System.out.println("\n=== AVAILABLE CLASSES ===");
-            classes.forEach(System.out::println);
+            System.out.println(WorkoutClass.getTableHeader());
+            classes.forEach(wc -> System.out.println(wc.toTableRow()));
+            System.out.println(WorkoutClass.getTableFooter());
         }
     }
+    
 
     private void viewMyMemberships() throws SQLException {
         List<Membership> memberships = membershipService.getUserMemberships(currentUser.getId());
@@ -91,9 +100,12 @@ public class MemberMenu {
             System.out.println("No active memberships.");
         } else {
             System.out.println("\n=== YOUR MEMBERSHIPS ===");
-            memberships.forEach(System.out::println);
+            System.out.println(Membership.getTableHeader());
+            memberships.forEach(membership -> System.out.println(membership.toTableRow()));
+            System.out.println(Membership.getTableFooter());
         }
     }
+    
 
     private void purchaseMembership() throws SQLException {
         System.out.println("\n=== MEMBERSHIP TYPES ===");
@@ -144,4 +156,18 @@ public class MemberMenu {
             ? "Enrollment successful!" 
             : "Enrollment failed.");
     }
+
+
+    private void viewEnrolledClasses() throws SQLException {
+        List<WorkoutClass> enrolledClasses = classService.getEnrolledClasses(currentUser.getId()); // Fetch user's enrolled classes
+        if (enrolledClasses.isEmpty()) {
+            System.out.println("You are not enrolled in any classes.");
+        } else {
+            System.out.println("\n=== ENROLLED CLASSES ===");
+            System.out.println(WorkoutClass.getTableHeader());
+            enrolledClasses.forEach(classObj -> System.out.println(classObj.toTableRow()));
+            System.out.println(WorkoutClass.getTableFooter());
+        }
+    }
 }
+

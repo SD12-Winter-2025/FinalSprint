@@ -1,6 +1,7 @@
 package com.gymmanagement.model;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Represents a user's gym membership with pricing and validity period.
@@ -39,11 +40,37 @@ public class Membership {
     public String getPaymentStatus() { return paymentStatus; }
     public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
 
-    @Override
-    public String toString() {
+    /**
+     * Generates the table header for displaying memberships.
+     */
+    public static String getTableHeader() {
         return String.format(
-            "Membership[id=%d, userId=%d, type='%s', price=%.2f, status='%s', dates=%s to %s]",
-            id, userId, type, price, paymentStatus, startDate, endDate
+            "\n+------+--------+------------+---------+-----------+--------------------+%n" +
+            "| %-4s | %-6s | %-10s | %-7s | %-9s | %-18s |%n" +
+            "+------+--------+------------+---------+-----------+--------------------+",
+            "ID", "UserID", "Type", "Price", "Status", "Dates"
+        );
+    }
+
+    /**
+     * Generates the table footer for displaying memberships.
+     */
+    public static String getTableFooter() {
+        return "+------+--------+------------+---------+-----------+--------------------+\n";
+    }
+
+    /**
+     * Formats membership data into a table row.
+     */
+    public String toTableRow() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String dateRange = (startDate != null && endDate != null)
+            ? startDate.format(formatter) + " to " + endDate.format(formatter)
+            : "N/A";
+
+        return String.format(
+            "| %-4d | %-6d | %-10s | $%-6.2f | %-9s | %-18s |",
+            id, userId, type, price, paymentStatus, dateRange
         );
     }
 }
