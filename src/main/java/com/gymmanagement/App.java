@@ -84,12 +84,16 @@ public final class App {
 
     public void start() {
         while (true) {
-            System.out.println("\n=== Gym Management System ===");
-            System.out.println("1. Login");
-            System.out.println("2. Register");
-            System.out.println("3. Exit");
+            System.out.println("\n╔═══════════════════════════════════════╗");
+            System.out.println("║          Gym Management System        ║");
+            System.out.println("╠═══════════════════════════════════════╣");
+            System.out.println("║  1. Login                             ║");
+            System.out.println("║  2. Register                          ║");
+            System.out.println("║  3. Exit                              ║");
+            System.out.println("╚═══════════════════════════════════════╝");
+            System.out.println("");
             System.out.print("Select an option: ");
-    
+
             int choice = -1; // Initialize choice variable
             try {
                 if (scanner.hasNextInt()) { // Validate input

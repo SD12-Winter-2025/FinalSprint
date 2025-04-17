@@ -48,14 +48,19 @@ public class AdminMenu {
     
 
     private void printMenu() {
-        System.out.println("\n=== ADMIN MENU ===");
-        System.out.println("1. View All Users");
-        System.out.println("2. Delete User");
-        System.out.println("3. View Membership Revenue");
-        System.out.println("4. View All Classes");
-        System.out.println("5. Logout");
+        System.out.println("\n╔═══════════════════════════════════╗");
+        System.out.println("║             ADMIN MENU            ║");
+        System.out.println("╠═══════════════════════════════════╣");
+        System.out.println("║  1. View All Users                ║");
+        System.out.println("║  2. Delete User                   ║");
+        System.out.println("║  3. View Membership Revenue       ║");
+        System.out.println("║  4. View All Classes              ║");
+        System.out.println("║  5. Logout                        ║");
+        System.out.println("╚═══════════════════════════════════╝");
+        System.out.println("");
         System.out.print("Select an option: ");
     }
+    
 
     private void handleChoice(int choice) throws SQLException {
         switch (choice) {

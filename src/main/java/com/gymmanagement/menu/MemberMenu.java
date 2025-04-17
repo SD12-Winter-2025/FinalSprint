@@ -44,15 +44,20 @@ public class MemberMenu {
     }
 
     private void printMenu() {
-        System.out.println("\n=== MEMBER MENU ===");
-        System.out.println("1. Browse Classes");
-        System.out.println("2. View My Memberships");
-        System.out.println("3. Purchase Membership");
-        System.out.println("4. Enroll in Class");
-        System.out.println("5. View Enrolled Classes"); // New option added
-        System.out.println("6. Logout");
+        System.out.println("\n╔═══════════════════════════════════╗");
+        System.out.println("║             MEMBER MENU           ║");
+        System.out.println("╠═══════════════════════════════════╣");
+        System.out.println("║  1. Browse Classes                ║");
+        System.out.println("║  2. View My Memberships           ║");
+        System.out.println("║  3. Purchase Membership           ║");
+        System.out.println("║  4. Enroll in Class               ║");
+        System.out.println("║  5. View Enrolled Classes         ║");
+        System.out.println("║  6. Logout                        ║");
+        System.out.println("╚═══════════════════════════════════╝");
+        System.out.println("");
         System.out.print("Select an option: ");
     }
+    
     
 
     private boolean handleChoice(int choice) throws SQLException {
