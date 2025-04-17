@@ -66,19 +66,10 @@ The **Gym Management System** is designed using a modular architecture, where ea
 
 ---
 
-## Class Diagram
+## Class Diagram/Database Schema
 
-Below is a class diagram illustrating the relationships between key entities in the system:
-
-[Insert class diagram image here]
-
-> **Note**: To create and embed your class diagram, you can use tools like:
-> - [PlantUML](https://plantuml.com/)
-> - [Lucidchart](https://www.lucidchart.com/)
-> - [Draw.io](https://app.diagrams.net/)
-
-Example Markdown for adding the diagram:
-```markdown
-![Class Diagram](./class-diagram.png)
+  Follow the link below to observe a class diagram illustrating the relationships between key entities in the system:
+  
+  ![ER Diagram](\src\main\java\com\gymmanagement\docs\Final Sprint - Gym Management.png)
 
 

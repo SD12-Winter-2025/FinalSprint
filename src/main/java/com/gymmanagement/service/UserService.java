@@ -8,16 +8,27 @@ import com.gymmanagement.model.User;
 import com.gymmanagement.util.PasswordHasher;
 
 /**
- * Handles user authentication and management operations.
+ * Service class for managing user-related operations.
+ * 
+ * <p>Provides functionalities for user authentication, registration,
+ * and management tasks, including retrieving and deleting users.</p>
  */
 public class UserService {
     private final UserDAO userDAO;
 
+    /**
+     * Constructs a {@link UserService} instance and initializes the default admin account if it doesn't exist.
+     */
     public UserService() {
         this.userDAO = new UserDAO();
         initializeDefaultAdmin();
     }
 
+    /**
+     * Initializes a default admin account if none exists in the system.
+     * 
+     * <p>The admin account is created with the username "admin" and password "adminpassword".</p>
+     */
     private void initializeDefaultAdmin() {
         try {
             if (userDAO.findByUsername("admin") == null) {
@@ -29,6 +40,13 @@ public class UserService {
         }
     }
 
+    /**
+     * Authenticates a user by validating their username and password.
+     * 
+     * @param username The username provided by the user.
+     * @param password The password provided by the user.
+     * @return A {@link User} object if authentication is successful, or {@code null} if authentication fails.
+     */
     public User login(String username, String password) {
         try {
             User user = userDAO.findByUsername(username);
@@ -41,6 +59,14 @@ public class UserService {
         return null;
     }
 
+    /**
+     * Registers a new user in the system.
+     * 
+     * @param user The {@link User} object containing user details (excluding password).
+     * @param password The password for the new user (must be at least 8 characters).
+     * @return {@code true} if the registration is successful, {@code false} if the username is already taken.
+     * @throws IllegalArgumentException If the password is less than 8 characters.
+     */
     public boolean register(User user, String password) {
         if (password.length() < 8) {
             throw new IllegalArgumentException("Password must be at least 8 characters");
@@ -57,6 +83,11 @@ public class UserService {
         }
     }
 
+    /**
+     * Retrieves all users from the system.
+     * 
+     * @return A {@link List} of {@link User} objects representing all users in the system.
+     */
     public List<User> getAllUsers() {
         try {
             return userDAO.findAll();
@@ -66,6 +97,12 @@ public class UserService {
         }
     }
 
+    /**
+     * Deletes a user from the system by their user ID.
+     * 
+     * @param userId The ID of the user to delete.
+     * @return {@code true} if the user was deleted successfully, {@code false} otherwise.
+     */
     public boolean deleteUser(int userId) {
         try {
             return userDAO.delete(userId);

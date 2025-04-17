@@ -39,12 +39,21 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>1.7.36</version>
-    </dependency>
-    <dependency>
+  </dependency>
+
+  <!-- SLF4J Binding (e.g., for Logback or another logging implementation) -->
+  <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.2.11</version>
-    </dependency>
+      <version>1.2.10</version>
+  </dependency>
+
+  <!-- BCrypt: Password hashing library -->
+  <dependency>
+      <groupId>org.mindrot</groupId>
+      <artifactId>jbcrypt</artifactId>
+      <version>0.4</version>
+  </dependency>
     
     <!-- Testing -->
     <dependency>
