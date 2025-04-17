@@ -13,7 +13,7 @@ CREATE TABLE users (
 -- Memberships table
 CREATE TABLE memberships (
     membership_id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(user_id),
+    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     type VARCHAR(50) NOT NULL,
     description TEXT,
     start_date DATE NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE workout_classes (
     name VARCHAR(100) NOT NULL,
     description TEXT,
     type VARCHAR(50) NOT NULL,
-    trainer_id INTEGER NOT NULL REFERENCES users(user_id),
+    trainer_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE SET NULL,
     schedule TIMESTAMP NOT NULL,
     duration_minutes INTEGER NOT NULL,
     max_capacity INTEGER NOT NULL,
@@ -37,8 +37,8 @@ CREATE TABLE workout_classes (
 
 -- Class enrollments (junction table)
 CREATE TABLE class_enrollments (
-    member_id INTEGER NOT NULL REFERENCES users(user_id),
-    class_id INTEGER NOT NULL REFERENCES workout_classes(class_id),
+    member_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    class_id INTEGER NOT NULL REFERENCES workout_classes(class_id) ON DELETE CASCADE,
     enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (member_id, class_id)
 );

@@ -10,15 +10,27 @@ import com.gymmanagement.exception.DatabaseException;
 import com.gymmanagement.model.Membership;
 
 /**
- * Handles membership operations including purchases and revenue calculations.
+ * Manages membership transactions including purchases, renewals, and revenue reporting.
+ * Handles all business logic between controllers and membership data access.
  */
 public class MembershipService {
     private final MembershipDAO membershipDAO;
 
+    /**
+     * Initializes service with default DAO implementation.
+     */
     public MembershipService() {
         this.membershipDAO = new MembershipDAO();
     }
 
+    /**
+     * Processes new membership purchase with 1-month default duration.
+     * @param userId Target user account ID
+     * @param type Membership tier (e.g., "PREMIUM")
+     * @param description Optional benefits description
+     * @param price Membership cost
+     * @return true if purchase succeeded, false on failure
+     */
     public boolean purchaseMembership(int userId, String type, String description, double price) {
         try {
             Membership membership = new Membership();
@@ -37,6 +49,11 @@ public class MembershipService {
         }
     }
 
+    /**
+     * Retrieves all memberships for a given user.
+     * @param userId Target user account ID
+     * @return List of memberships (empty list on error)
+     */
     public List<Membership> getUserMemberships(int userId) {
         try {
             return membershipDAO.findByUserId(userId);
@@ -46,6 +63,11 @@ public class MembershipService {
         }
     }
 
+    /**
+     * Calculates gross revenue from all memberships.
+     * @return Total revenue amount
+     * @throws DatabaseException On SQL errors
+     */
     public double calculateTotalRevenue() throws DatabaseException {
         try {
             return membershipDAO.calculateTotalRevenue();
@@ -54,6 +76,11 @@ public class MembershipService {
         }
     }
 
+    /**
+     * Breaks down revenue by membership type.
+     * @return Map of type → revenue (e.g., {"PREMIUM": 500.00})
+     * @throws DatabaseException On SQL errors
+     */
     public Map<String, Double> getRevenueByMembershipType() throws DatabaseException {
         try {
             return membershipDAO.calculateRevenueByType();
@@ -62,6 +89,11 @@ public class MembershipService {
         }
     }
 
+    /**
+     * Counts active memberships by type.
+     * @return Map of type → count (e.g., {"STANDARD": 42})
+     * @throws DatabaseException On SQL errors
+     */
     public Map<String, Integer> getMembershipCounts() throws DatabaseException {
         try {
             return membershipDAO.countMembershipsByType();

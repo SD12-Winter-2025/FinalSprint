@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
+import com.gymmanagement.exception.DatabaseException;
 import com.gymmanagement.model.Membership;
 import com.gymmanagement.model.User;
 import com.gymmanagement.model.WorkoutClass;
@@ -11,7 +12,20 @@ import com.gymmanagement.service.MembershipService;
 import com.gymmanagement.service.WorkoutClassService;
 
 /**
- * Console interface for member operations.
+ * Console-based menu interface for member operations.
+ * 
+ * This class provides functionalities for gym members, allowing them to:
+ * <ul>
+ *   <li>Browse available workout classes</li>
+ *   <li>View their memberships</li>
+ *   <li>Purchase new memberships</li>
+ *   <li>Enroll in workout classes</li>
+ *   <li>View their enrolled workout classes</li>
+ *   <li>Logout from the member interface</li>
+ * </ul>
+ * 
+ * It interacts with {@link MembershipService} and {@link WorkoutClassService} to perform
+ * backend operations. The menu operates through user input from the console.
  */
 public class MemberMenu {
     private final Scanner scanner;
@@ -19,15 +33,28 @@ public class MemberMenu {
     private final WorkoutClassService classService;
     private final User currentUser;
 
+    /**
+     * Constructor to initialize the member menu.
+     * 
+     * @param scanner The {@link Scanner} for reading user input.
+     * @param membershipService The service handling membership-related operations.
+     * @param classService The service handling workout class-related operations.
+     * @param currentUser The {@link User} object representing the logged-in member.
+     */
     public MemberMenu(Scanner scanner, MembershipService membershipService,
-                    WorkoutClassService classService, User currentUser) {
+                      WorkoutClassService classService, User currentUser) {
         this.scanner = scanner;
         this.membershipService = membershipService;
         this.classService = classService;
         this.currentUser = currentUser;
     }
 
-    public void show() {
+    /**
+     * Displays the member menu and handles user input.
+     * The menu loops until the member chooses to logout.
+     * @throws DatabaseException 
+     */
+    public void show() throws DatabaseException {
         while (true) {
             printMenu();
             int choice = scanner.nextInt();
@@ -43,6 +70,9 @@ public class MemberMenu {
         }
     }
 
+    /**
+     * Prints the member menu options to the console.
+     */
     private void printMenu() {
         System.out.println("\n╔═══════════════════════════════════╗");
         System.out.println("║             MEMBER MENU           ║");
@@ -57,10 +87,16 @@ public class MemberMenu {
         System.out.println("");
         System.out.print("Select an option: ");
     }
-    
-    
 
-    private boolean handleChoice(int choice) throws SQLException {
+    /**
+     * Handles the member's menu selection by executing the relevant option.
+     * 
+     * @param choice The menu item selected by the member.
+     * @return {@code false} if the member chooses to logout, {@code true} otherwise.
+     * @throws SQLException If a database error occurs while processing the menu option.
+     * @throws DatabaseException 
+     */
+    private boolean handleChoice(int choice) throws SQLException, DatabaseException {
         switch (choice) {
             case 1:
                 browseClasses();
@@ -79,13 +115,18 @@ public class MemberMenu {
                 break;
             case 6:
                 System.out.println("Logging out...");
-                return false; // Signal to exit the loop
+                return false; // Exit the loop
             default:
                 System.out.println("Invalid option! Please select a valid menu item.");
         }
         return true; // Continue the loop
     }
 
+    /**
+     * Displays all available workout classes in a tabular format.
+     * 
+     * @throws SQLException If a database error occurs while retrieving the classes.
+     */
     private void browseClasses() throws SQLException {
         List<WorkoutClass> classes = classService.getAllClasses();
         if (classes.isEmpty()) {
@@ -97,8 +138,12 @@ public class MemberMenu {
             System.out.println(WorkoutClass.getTableFooter());
         }
     }
-    
 
+    /**
+     * Displays the member's active memberships in a tabular format.
+     * 
+     * @throws SQLException If a database error occurs while retrieving the memberships.
+     */
     private void viewMyMemberships() throws SQLException {
         List<Membership> memberships = membershipService.getUserMemberships(currentUser.getId());
         if (memberships.isEmpty()) {
@@ -110,8 +155,12 @@ public class MemberMenu {
             System.out.println(Membership.getTableFooter());
         }
     }
-    
 
+    /**
+     * Allows the member to purchase a new membership.
+     * 
+     * @throws SQLException If a database error occurs while processing the purchase.
+     */
     private void purchaseMembership() throws SQLException {
         System.out.println("\n=== MEMBERSHIP TYPES ===");
         System.out.println("1. Basic ($29.99/month)");
@@ -151,7 +200,12 @@ public class MemberMenu {
         System.out.println(success ? "Purchase successful!" : "Purchase failed.");
     }
 
-    private void enrollInClass() throws SQLException {
+    /**
+     * Allows the member to enroll in a workout class.
+     * 
+     * @throws SQLException If a database error occurs while processing the enrollment.
+     */
+    private void enrollInClass() throws SQLException, DatabaseException {
         browseClasses();
         System.out.print("Enter class ID to enroll: ");
         int classId = scanner.nextInt();
@@ -162,9 +216,13 @@ public class MemberMenu {
             : "Enrollment failed.");
     }
 
-
-    private void viewEnrolledClasses() throws SQLException {
-        List<WorkoutClass> enrolledClasses = classService.getEnrolledClasses(currentUser.getId()); // Fetch user's enrolled classes
+    /**
+     * Displays the workout classes in which the member is enrolled.
+     * 
+     * @throws SQLException If a database error occurs while retrieving the classes.
+     */
+    private void viewEnrolledClasses() throws SQLException, DatabaseException {
+        List<WorkoutClass> enrolledClasses = classService.getEnrolledClasses(currentUser.getId());
         if (enrolledClasses.isEmpty()) {
             System.out.println("You are not enrolled in any classes.");
         } else {
@@ -175,4 +233,3 @@ public class MemberMenu {
         }
     }
 }
-
