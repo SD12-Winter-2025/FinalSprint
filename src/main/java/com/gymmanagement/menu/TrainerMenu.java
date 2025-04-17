@@ -49,15 +49,20 @@ public class TrainerMenu {
     }
 
     private void printMenu() {
-        System.out.println("\n=== TRAINER MENU ===");
-        System.out.println("1. View My Classes");
-        System.out.println("2. Create New Class");
-        System.out.println("3. Update Class");
-        System.out.println("4. Delete Class");
-        System.out.println("5. Purchase Membership");
-        System.out.println("6. Logout");
+        System.out.println("\n╔═══════════════════════════════════╗");
+        System.out.println("║            TRAINER MENU           ║");
+        System.out.println("╠═══════════════════════════════════╣");
+        System.out.println("║  1. View My Classes               ║");
+        System.out.println("║  2. Create New Class              ║");
+        System.out.println("║  3. Update Class                  ║");
+        System.out.println("║  4. Delete Class                  ║");
+        System.out.println("║  5. Purchase Membership           ║");
+        System.out.println("║  6. Logout                        ║");
+        System.out.println("╚═══════════════════════════════════╝");
+        System.out.println("");
         System.out.print("Select an option: ");
     }
+    
 
     private boolean handleChoice(int choice) throws SQLException {
         switch (choice) {
