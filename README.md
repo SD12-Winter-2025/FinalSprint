@@ -75,20 +75,6 @@ Members can:
 - View their memberships and manage renewals.
 - Track the classes they are enrolled in.
 
-
-## Visual Menu Design
-An example of the clean, structured menus used throughout the program:
-
-╔═══════════════════════════════════╗
-║          GYM MANAGEMENT SYSTEM    ║
-╠═══════════════════════════════════╣
-║  1. Login                         ║
-║  2. Register                      ║
-║  3. Exit                          ║
-╚═══════════════════════════════════╝
-Select an option:
-
-
 ## 📂 Project Structure
 
 ### Core Application
